@@ -1,5 +1,5 @@
 import sys
-
+from ship import Ship
 import pygame
 from settings import Settings
 
@@ -10,11 +10,13 @@ class AlienInvasion:
         """initialize game and , and create game resources"""
         pygame.init()
         self.settings = Settings()
+        
 
         self.screen = pygame.display.set_mode((self.settings.screen_width,self.settings.screen_height))
         pygame.display.set_caption("Alien invasion UwU")
         self.clock = pygame.time.Clock()
-        self.bg_color = (169, 169, 169)
+        self.bg_color = self.settings.bg_colour
+        self.ship = Ship(self)
 
     def run_game(self):
         "Runs the game"
@@ -25,6 +27,7 @@ class AlienInvasion:
             
             "Redraws a screen fill from this colour on each passthrogh"
             self.screen.fill(self.bg_color)    
+            self.ship.blitme()
 
             #Makes the most recently drawn screen visible
             pygame.display.flip()
