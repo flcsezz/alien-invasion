@@ -23,6 +23,7 @@ class AlienInvasion:
         "Runs the game"
         while True:
             self._check_events()
+            self.ship.update()
             self._update_screen()
             self.clock.tick(60)
 
@@ -32,12 +33,34 @@ class AlienInvasion:
                     if events.type == pygame.QUIT:
                         sys.exit()
                     elif events.type == pygame.KEYDOWN:
+    
                         if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
+                            self.ship.move_right =True
                             #moves ship to right
-                            self.ship.rect.x += 5
-                        elif events.key == pygame.K_a or events.key == pygame.K_LEFT:
+                        if events.key == pygame.K_a or events.key == pygame.K_LEFT:
                              #moves ship to left 
-                             self.ship.rect.x -= 5
+                            self.ship.move_left = True
+                        if events.key == pygame.K_w or events.key == pygame.K_UP:
+                             #moves ship up
+                             self.ship.move_up = True
+                        if events.key == pygame.K_s or events.key == pygame.K_DOWN:
+                            self.ship.move_down = True
+
+                    elif events.type ==  pygame.KEYUP:
+
+                        if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
+                            self.ship.move_right =False
+                            #moves ship to right
+                        if events.key == pygame.K_a or events.key == pygame.K_LEFT:
+                             #moves ship to left 
+                            self.ship.move_left = False
+                        if events.key == pygame.K_w or events.key == pygame.K_UP:
+                             #moves ship up
+                             self.ship.move_up = False
+                        if events.key == pygame.K_s or events.key == pygame.K_DOWN:
+                            self.ship.move_down = False
+                         
+
                         
                     
                     
