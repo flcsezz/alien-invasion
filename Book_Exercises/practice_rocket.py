@@ -1,4 +1,4 @@
-"""This is a practice file of a exercise in the book this dosent affect the main programm in any way"""
+"""This is a standalone practice file of a exercise in the book this dosent affect the main programm in any way"""
 
 import pygame
 import sys
