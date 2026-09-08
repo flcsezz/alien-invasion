@@ -5,4 +5,12 @@ class Settings():
         self.screen_height = 800
         self.screen_width = 1200
         self.bg_colour = (169,169,169)
-        self.ship_speed = 10
+        self.ship_speed = 4
+
+        #Bullets
+        self.bullet_height = 15
+        self.bullet_width = 5
+        self.bullet_speed = 7
+        self.bullet_color = (60,60,60)
+        self.bullet_delay = 200
+        

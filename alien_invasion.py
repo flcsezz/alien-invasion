@@ -2,6 +2,7 @@ import sys
 from ship import Ship
 import pygame
 from settings import Settings
+from bullets import Bullet
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -18,12 +19,18 @@ class AlienInvasion:
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
+        self.bullets = pygame.sprite.Group()
+        self.bullet_firing = False
+        self.last_fired = 0
+        
         
     def run_game(self):
         "Runs the game"
         while True:
             self._check_events()
             self.ship.update()
+            self._fire_bullet()
+            self.bullets.update()
             self._update_screen()
             self.clock.tick(60)
 
@@ -44,38 +51,51 @@ class AlienInvasion:
         if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
             self.ship.move_right =False
             #moves ship to right
-        if events.key == pygame.K_a or events.key == pygame.K_LEFT:
+        elif events.key == pygame.K_a or events.key == pygame.K_LEFT:
              #moves ship to left 
             self.ship.move_left = False
-        if events.key == pygame.K_w or events.key == pygame.K_UP:
+        elif events.key == pygame.K_w or events.key == pygame.K_UP:
              #moves ship up
              self.ship.move_up = False
-        if events.key == pygame.K_s or events.key == pygame.K_DOWN:
-                self.ship.move_down = False                     
-
+        elif events.key == pygame.K_s or events.key == pygame.K_DOWN:
+                self.ship.move_down = False 
+        elif events.key == pygame.K_f or events.key == pygame.K_SPACE:
+                     self.bullet_firing = False 
+        
     def _check_keydown_events(self, events):
         if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
             self.ship.move_right =True
             #moves ship to right
-        if events.key == pygame.K_a or events.key == pygame.K_LEFT:
+        elif events.key == pygame.K_a or events.key == pygame.K_LEFT:
              #moves ship to left 
              self.ship.move_left = True
-        if events.key == pygame.K_w or events.key == pygame.K_UP:
+        elif events.key == pygame.K_w or events.key == pygame.K_UP:
              #moves ship up
             self.ship.move_up = True
-        if events.key == pygame.K_s or events.key == pygame.K_DOWN:
+        elif events.key == pygame.K_s or events.key == pygame.K_DOWN:
             self.ship.move_down = True
-
+        elif events.key == pygame.K_f or events.key == pygame.K_SPACE:
+             self.bullet_firing = True
+        
 
     def _update_screen(self):
 
         "Redraws a screen fill from this colour on each passthrogh"
         self.screen.fill(self.bg_color)    
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
         self.ship.blitme()    
         
         
         #Makes the most recently drawn screen visible
         pygame.display.flip()
+
+    def _fire_bullet(self):
+        self.current_time = pygame.time.get_ticks()
+        if self.bullet_firing and (self.current_time - self.last_fired >= self.settings.bullet_delay):
+              new_bullet = Bullet(self)
+              self.bullets.add(new_bullet)
+              self.last_fired = self.current_time
 
 if __name__ == "__main__":
     ai = AlienInvasion()
