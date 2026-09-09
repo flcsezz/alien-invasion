@@ -10,11 +10,15 @@ class Bullet(Sprite):
         self.color = self.settings.bullet_color
 
         #creats a rect at (0,0)
+    
         self.rect = pygame.Rect(0,0, self.settings.bullet_width, self.settings.bullet_height)
+        
+        self.rect2 = pygame.Rect(0,0, self.settings.bullet_width, self.settings.bullet_height)
 
-        #places midbottom of the rect to midtop of the ship
+        
 
-        self.rect.midbottom = ai_game.ship.rect.midtop
+        self.rect2.bottomleft = ai_game.ship.rect.bottomleft
+        self.rect.bottomright = ai_game.ship.rect.bottomright
 
         self.y = float(self.rect.y)
 
@@ -22,8 +26,11 @@ class Bullet(Sprite):
         #updates the bullets position
         self.y -= self.settings.bullet_speed
 
-        self.rect.y = self.y
+        self.rect2.y = self.y
+        
+        self.rect.y= self.y
 
     def draw_bullet(self):
         #Draws bullet on the surface
+        pygame.draw.rect(self.screen, self.color, self.rect2)
         pygame.draw.rect(self.screen, self.color, self.rect)
