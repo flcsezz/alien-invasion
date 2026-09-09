@@ -22,13 +22,16 @@ class AlienInvasion:
         self.bullets = pygame.sprite.Group()
         self.bullet_firing = False
         self.last_fired = 0
-        
+        self.not_heated = True
+        self.bullet_heat= 0      
+          
         
     def run_game(self):
         "Runs the game"
         while True:
             self._check_events()
             self.ship.update()
+            self._bullet_heat()
             self._fire_bullet()
             self.bullets.update()
             self._update_screen()
@@ -92,10 +95,23 @@ class AlienInvasion:
 
     def _fire_bullet(self):
         self.current_time = pygame.time.get_ticks()
-        if self.bullet_firing and (self.current_time - self.last_fired >= self.settings.bullet_delay):
+        if self.bullet_firing and (self.current_time - self.last_fired >= self.settings.bullet_delay) and self.not_heated:
               new_bullet = Bullet(self)
               self.bullets.add(new_bullet)
               self.last_fired = self.current_time
+              self.bullet_heat += self.settings.bullet_heatinrate
+
+    def _bullet_heat(self):
+         
+         if self.bullet_heat <= 0:
+              self.not_heated = True
+         elif self.bullet_heat >= self.settings.bullet_maxheat:
+               self.not_heated = False
+         if self.not_heated == False or self.bullet_firing == False:
+              self.bullet_heat -= self.settings.bullet_coolingrate
+            
+         
+         
 
 if __name__ == "__main__":
     ai = AlienInvasion()
