@@ -20,7 +20,8 @@ class AlienInvasion:
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
         self.bulletsR = pygame.sprite.Group()
-        self.bulletL = pygame.sprite.Group()
+        self.bulletsL = pygame.sprite.Group()
+        self.bullets = pygame.sprite.Group()
         self.bullet_firing = False
         self.last_fired = 0
         self.not_heated = True
@@ -34,8 +35,7 @@ class AlienInvasion:
             self.ship.update()
             self._bullet_heat()
             self._fire_bullet()
-            self.bulletsR.update()
-            self.bulletL.update()
+            self.bullets.update()
             self._update_screen()
             self.clock.tick(60)
 
@@ -87,10 +87,8 @@ class AlienInvasion:
 
         "Redraws a screen fill from this colour on each passthrogh"
         self.screen.fill(self.bg_color)    
-        for bullet in self.bulletsR.sprites():
+        for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        for bullets  in self.bulletL.sprites():
-             bullets.draw_bullet()
         self.ship.blitme()    
         
         
@@ -102,8 +100,8 @@ class AlienInvasion:
         if self.bullet_firing and (self.current_time - self.last_fired >= self.settings.bullet_delay) and self.not_heated:
               new_bulletR = BulletR(self)
               new_bulletL = BulletL(self)
-              self.bulletsR.add(new_bulletR)
-              self.bulletL.add(new_bulletL)
+              self.bullets.add(new_bulletR)
+              self.bullets.add(new_bulletL)
               self.last_fired = self.current_time
               self.bullet_heat += self.settings.bullet_heatinrate
 
