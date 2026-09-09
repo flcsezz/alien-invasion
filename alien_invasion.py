@@ -2,7 +2,7 @@ import sys
 from ship import Ship
 import pygame
 from settings import Settings
-from bullets import Bullet
+from bullets import BulletR , BulletL
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -19,11 +19,12 @@ class AlienInvasion:
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
-        self.bullets = pygame.sprite.Group()
+        self.bulletsR = pygame.sprite.Group()
+        self.bulletL = pygame.sprite.Group()
         self.bullet_firing = False
         self.last_fired = 0
         self.not_heated = True
-        self.bullet_heat= 0      
+        self.bullet_heat= float(0)      
           
         
     def run_game(self):
@@ -33,7 +34,8 @@ class AlienInvasion:
             self.ship.update()
             self._bullet_heat()
             self._fire_bullet()
-            self.bullets.update()
+            self.bulletsR.update()
+            self.bulletL.update()
             self._update_screen()
             self.clock.tick(60)
 
@@ -85,8 +87,10 @@ class AlienInvasion:
 
         "Redraws a screen fill from this colour on each passthrogh"
         self.screen.fill(self.bg_color)    
-        for bullet in self.bullets.sprites():
+        for bullet in self.bulletsR.sprites():
             bullet.draw_bullet()
+        for bullets  in self.bulletL.sprites():
+             bullets.draw_bullet()
         self.ship.blitme()    
         
         
@@ -96,8 +100,10 @@ class AlienInvasion:
     def _fire_bullet(self):
         self.current_time = pygame.time.get_ticks()
         if self.bullet_firing and (self.current_time - self.last_fired >= self.settings.bullet_delay) and self.not_heated:
-              new_bullet = Bullet(self)
-              self.bullets.add(new_bullet)
+              new_bulletR = BulletR(self)
+              new_bulletL = BulletL(self)
+              self.bulletsR.add(new_bulletR)
+              self.bulletL.add(new_bulletL)
               self.last_fired = self.current_time
               self.bullet_heat += self.settings.bullet_heatinrate
 
@@ -107,7 +113,7 @@ class AlienInvasion:
               self.not_heated = True
          elif self.bullet_heat >= self.settings.bullet_maxheat:
                self.not_heated = False
-         if self.not_heated == False or self.bullet_firing == False:
+         if (self.not_heated == False or self.bullet_firing == False) and self.bullet_heat > 0:
               self.bullet_heat -= self.settings.bullet_coolingrate
             
          
