@@ -3,6 +3,7 @@ from ship import Ship
 import pygame
 from settings import Settings
 from bullets import BulletR , BulletL, BulletM
+from aliens import Aliens
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -19,9 +20,11 @@ class AlienInvasion:
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
+
         self.bulletsR = pygame.sprite.Group()
         self.bulletsL = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+
         self.last_fired = 0
         self.not_heated = True
         self.bullet_heat= float(0)    
@@ -30,6 +33,9 @@ class AlienInvasion:
         self.single_mode = False
         self.bullet_delay= 0
         self.firing = False
+
+        #Aliens
+        self.aliens = pygame.sprite.Group()
 
         
     def run_game(self):
@@ -54,7 +60,7 @@ class AlienInvasion:
                     elif events.type ==  pygame.KEYUP:
                          self._check_keyup_events(events)
 
-
+                                              
 
     def _check_keyup_events(self,events):
 
@@ -107,7 +113,7 @@ class AlienInvasion:
         self.ship.blitme()   
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-            
+        self._alien_fleet()
         
         
         #Makes the most recently drawn screen visible
@@ -156,6 +162,13 @@ class AlienInvasion:
          for bullets in self.bullets.copy():
             if bullets.rect.bottom <=0:
                  self.bullets.remove(bullets)
+
+
+
+    def _alien_fleet(self):
+         self.new_alien = Aliens(self)
+         self.aliens.add(self.new_alien)
+         self.aliens.draw(self.screen)
                  
 
             
