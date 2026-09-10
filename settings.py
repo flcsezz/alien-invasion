@@ -12,10 +12,12 @@ class Settings():
         self.bullet_width = 5
         self.bullet_speed = 7
         self.bullet_color = (60,60,60)
-        self.bullet_delay = 350
+        
         self.bullet_maxheat = 400
         self.bullet_coolingrate = 2.3
-        self.bullet_heatrate_singlemode = 7
-        self.bullet_heatrate_cannonmode = 14
-        self.bullet_heatrate_trimode = 21
-        
+        self.bullet_heatrate_singlemode = 10
+        self.bullet_heatrate_cannonmode = 25
+        self.bullet_heatrate_trimode = 40
+        self.trimode_delay = 800
+        self.singlemode_delay = 450
+        self.cannonmode_ddelay = 600

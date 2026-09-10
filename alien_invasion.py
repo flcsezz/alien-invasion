@@ -22,14 +22,15 @@ class AlienInvasion:
         self.bulletsR = pygame.sprite.Group()
         self.bulletsL = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
-        self.firing_keys = set()
         self.last_fired = 0
         self.not_heated = True
         self.bullet_heat= float(0)    
         self.cannon_mode = False  
         self.trimode = False
         self.single_mode = False
-          
+        self.bullet_delay= 0
+        self.firing = False
+
         
     def run_game(self):
         "Runs the game"
@@ -39,6 +40,7 @@ class AlienInvasion:
             self._bullet_heat()
             self._fire_bullet()
             self.bullets.update()
+            self._remove_bullets()
             self._update_screen()
             self.clock.tick(60)
 
@@ -67,9 +69,8 @@ class AlienInvasion:
              self.ship.move_up = False
         elif events.key == pygame.K_s or events.key == pygame.K_DOWN:
                 self.ship.move_down = False 
-        elif events.key in (pygame.K_SPACE, pygame.K_f, pygame.K_t):
-             self.firing_keys.discard(events.key)
-        
+        elif events.key == pygame.K_SPACE:
+             self.firing = False
         
     def _check_keydown_events(self, events):
         if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
@@ -83,18 +84,30 @@ class AlienInvasion:
             self.ship.move_up = True
         elif events.key == pygame.K_s or events.key == pygame.K_DOWN:
             self.ship.move_down = True
-        elif events.key in (pygame.K_SPACE, pygame.K_f, pygame.K_t):
-            self.firing_keys.add(events.key)
-
+        elif events.key == pygame.K_1:
+             self.single_mode = True
+             self.trimode = False
+             self.cannon_mode = False
+        elif events.key == pygame.K_2:
+             self.cannon_mode = True
+             self.single_mode = False
+             self.trimode = False
+        elif events.key == pygame.K_3:
+             self.trimode = True
+             self.cannon_mode = False
+             self.single_mode = False
+        elif events.key == pygame.K_SPACE:
+             self.firing = True
         
 
     def _update_screen(self):
 
         "Redraws a screen fill from this colour on each passthrogh"
-        self.screen.fill(self.bg_color)    
+        self.screen.fill(self.bg_color) 
+        self.ship.blitme()   
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        self.ship.blitme()    
+            
         
         
         #Makes the most recently drawn screen visible
@@ -102,16 +115,17 @@ class AlienInvasion:
 
     def _fire_bullet(self):
         self.current_time = pygame.time.get_ticks()
-        if self.firing_keys and (self.current_time - self.last_fired >= self.settings.bullet_delay) and self.not_heated:
-            if pygame.K_f in self.firing_keys:
+        if self.firing and (self.current_time - self.last_fired >= self.bullet_delay) and self.not_heated:
+            if self.cannon_mode:
                 new_bulletR = BulletR(self)
                 new_bulletL = BulletL(self)
                 self.bullets.add(new_bulletR)
                 self.bullets.add(new_bulletL)
                 self.last_fired = self.current_time
                 self.bullet_heat += self.settings.bullet_heatrate_cannonmode
+                self.bullet_delay = self.settings.cannonmode_ddelay
 
-            elif pygame.K_t in self.firing_keys:
+            elif self.trimode:
                  new_bulletR = BulletR(self)
                  new_bulletL = BulletL(self)
                  new_bulletM = BulletM(self)
@@ -120,12 +134,14 @@ class AlienInvasion:
                  self.bullets.add(new_bulletM)
                  self.last_fired = self.current_time
                  self.bullet_heat += self.settings.bullet_heatrate_trimode
+                 self.bullet_delay = self.settings.trimode_delay
 
-            elif pygame.K_SPACE in self.firing_keys:
+            elif self.single_mode or self.firing:
                  new_bulletM = BulletM(self)
                  self.bullets.add(new_bulletM)
                  self.last_fired = self.current_time
                  self.bullet_heat += self.settings.bullet_heatrate_singlemode
+                 self.bullet_delay = self.settings.singlemode_delay
 
     def _bullet_heat(self):
          
@@ -133,8 +149,15 @@ class AlienInvasion:
               self.not_heated = True
          elif self.bullet_heat >= self.settings.bullet_maxheat:
                self.not_heated = False
-         if (not self.not_heated or not self.firing_keys) and self.bullet_heat > 0:
+         if (not self.not_heated or not self.firing) and self.bullet_heat > 0:
               self.bullet_heat -= self.settings.bullet_coolingrate
+
+    def _remove_bullets(self):
+         for bullets in self.bullets.copy():
+            if bullets.rect.bottom <=0:
+                 self.bullets.remove(bullets)
+                 
+
             
          
          
