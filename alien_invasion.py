@@ -12,10 +12,9 @@ class AlienInvasion:
         """initialize game and , and create game resources"""
         pygame.init()
         self.settings = Settings()
-        
-        
-
-        self.screen = pygame.display.set_mode((self.settings.screen_width,self.settings.screen_height))
+        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+        self.settings.screen_width = self.screen.get_rect().width
+        self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien invasion UwU")
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
@@ -40,16 +39,18 @@ class AlienInvasion:
         
     def run_game(self):
         "Runs the game"
+        self._create_fleet()
         while True:
             self._check_events()
             self.ship.update()
             self._bullet_heat()
             self._fire_bullet()
+            
             self.bullets.update()
             self._remove_bullets()
             self._update_screen()
             self.clock.tick(60)
-
+            
     def _check_events(self):
                 """respond to keypresses and mouse events"""
                 for events in pygame.event.get():
@@ -111,9 +112,11 @@ class AlienInvasion:
         "Redraws a screen fill from this colour on each passthrogh"
         self.screen.fill(self.bg_color) 
         self.ship.blitme()   
+        self.aliens.draw(self.screen)
+
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        self._alien_fleet()
+        
         
         
         #Makes the most recently drawn screen visible
@@ -165,10 +168,26 @@ class AlienInvasion:
 
 
 
-    def _alien_fleet(self):
-         self.new_alien = Aliens(self)
-         self.aliens.add(self.new_alien)
-         self.aliens.draw(self.screen)
+
+    def _create_fleet(self):
+         alien = Aliens(self)
+         alien_width, alien_height = alien.rect.size
+         current_x, current_y = alien_width, alien_height            
+         while current_y < (self.settings.screen_height - 6*alien_height):
+            while current_x < (self.settings.screen_width - 2*alien_width):
+                self._create_aliens(current_x, current_y)
+                current_x += 2*alien_width
+            current_y += 2*alien_height
+            current_x = alien_width
+
+    def _create_aliens(self, xposition, yposition):
+        new_alien = Aliens(self)
+        self.x = xposition
+        new_alien.rect.x = xposition
+        new_alien.rect.y = yposition
+        self.aliens.add(new_alien)
+            
+
                  
 
             
