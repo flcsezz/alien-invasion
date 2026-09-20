@@ -4,6 +4,7 @@ import pygame
 from settings import Settings
 from bullets import BulletR , BulletL, BulletM
 from aliens import Aliens
+from backgroun_assets import Background
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -23,6 +24,7 @@ class AlienInvasion:
         self.bulletsR = pygame.sprite.Group()
         self.bulletsL = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+        
 
         self.last_fired = 0
         self.not_heated = True
@@ -36,18 +38,23 @@ class AlienInvasion:
         #Aliens
         self.aliens = pygame.sprite.Group()
 
+        #bg objects
+        self.last_rendered = 0
+        self.bg_objects = pygame.sprite.Group()
         
     def run_game(self):
         "Runs the game"
         self._create_fleet()
         while True:
             self._check_events()
-            self.ship.update()
+            self.ship.update()           
             self._bullet_heat()
             self._fire_bullet()
-            
+            self.bg_objects.update()
             self.bullets.update()
             self._remove_bullets()
+            self._render_bg_objects()
+            self._remove_obj()
             self._update_screen()
             self.clock.tick(60)
             
@@ -110,15 +117,14 @@ class AlienInvasion:
     def _update_screen(self):
 
         "Redraws a screen fill from this colour on each passthrogh"
-        self.screen.fill(self.bg_color) 
+        self.screen.fill(self.bg_color)
+        self.bg_objects.draw(self.screen)
         self.ship.blitme()   
         self.aliens.draw(self.screen)
 
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        
-        
-        
+
         #Makes the most recently drawn screen visible
         pygame.display.flip()
 
@@ -166,7 +172,17 @@ class AlienInvasion:
             if bullets.rect.bottom <=0:
                  self.bullets.remove(bullets)
 
+    def _render_bg_objects(self):
+         self.current_time = pygame.time.get_ticks()
+         if self.current_time - self.last_rendered >= 1000:
+              self.asteroids = Background(self, self.settings.asteroid_img, 2)
+              self.bg_objects.add(self.asteroids)
+              self.last_rendered = self.current_time
 
+    def _remove_obj(self):
+         for asteroids in self.bg_objects.copy():
+              if asteroids.rect.top > self.settings.screen_height:
+                   self.bg_objects.remove(asteroids)
 
 
     def _create_fleet(self):

@@ -1,3 +1,5 @@
+import pygame
+
 class Settings():
     def __init__(self):
 
@@ -21,3 +23,15 @@ class Settings():
         self.trimode_delay = 500
         self.singlemode_delay = 280
         self.cannonmode_ddelay = 350
+
+        self.obj_speed = 10
+
+        #Images
+        self.asteroid_img = pygame.image.load("images/asteroid.bmp")
+        self.nebula_img = pygame.image.load("images/nebula.bmp")
+        self.planet_gas = pygame.image.load("images/planet_gas_giant.bmp")
+        self.planet_ice = pygame.image.load("images/planet_ice_toxic.bmp")
+        self.planet_terrestrial = pygame.image.load('images/planet_terrestrial.bmp')
+        self.starL = pygame.image.load('images/star_large.bmp')
+        self.starM = pygame.image.load("images/star_medium.bmp")
+        self.starS = pygame.image.load('images/star_small.bmp')
