@@ -20,6 +20,7 @@ class AlienInvasion:
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
+       
 
         self.bulletsR = pygame.sprite.Group()
         self.bulletsL = pygame.sprite.Group()
@@ -34,9 +35,11 @@ class AlienInvasion:
         self.single_mode = False
         self.bullet_delay= 0
         self.firing = False
+        
 
         #Aliens
         self.aliens = pygame.sprite.Group()
+        self.last_spawned = 0
 
         #bg objects
         self.last_rendered = 0
@@ -44,14 +47,16 @@ class AlienInvasion:
         
     def run_game(self):
         "Runs the game"
-        self._create_fleet()
         while True:
             self._check_events()
             self.ship.update()           
             self._bullet_heat()
             self._fire_bullet()
             self.bg_objects.update()
+            self._spawn_alien()
             self.bullets.update()
+            self.aliens.update()
+            self._update_alien()
             self._remove_bullets()
             self._render_bg_objects()
             self._remove_obj()
@@ -85,6 +90,8 @@ class AlienInvasion:
                 self.ship.move_down = False 
         elif events.key == pygame.K_SPACE:
              self.firing = False
+        elif events.key == pygame.K_LSHIFT:
+             self.ship.swifty = False
         
     def _check_keydown_events(self, events):
         if events.key == pygame.K_d or events.key == pygame.K_RIGHT:
@@ -112,6 +119,8 @@ class AlienInvasion:
              self.single_mode = False
         elif events.key == pygame.K_SPACE:
              self.firing = True
+        elif events.key == pygame.K_LSHIFT:
+             self.ship.swifty = True
         
 
     def _update_screen(self):
@@ -127,6 +136,7 @@ class AlienInvasion:
 
         #Makes the most recently drawn screen visible
         pygame.display.flip()
+
 
     def _fire_bullet(self):
         self.current_time = pygame.time.get_ticks()
@@ -175,7 +185,7 @@ class AlienInvasion:
     def _render_bg_objects(self):
          self.current_time = pygame.time.get_ticks()
          if self.current_time - self.last_rendered >= 1000:
-              self.asteroids = Background(self, self.settings.asteroid_img, 2)
+              self.asteroids = Background(self, self.settings.asteroid_img, 3)
               self.bg_objects.add(self.asteroids)
               self.last_rendered = self.current_time
 
@@ -185,23 +195,21 @@ class AlienInvasion:
                    self.bg_objects.remove(asteroids)
 
 
-    def _create_fleet(self):
-         alien = Aliens(self)
-         alien_width, alien_height = alien.rect.size
-         current_x, current_y = alien_width, alien_height            
-         while current_y < (self.settings.screen_height - 6*alien_height):
-            while current_x < (self.settings.screen_width - 2*alien_width):
-                self._create_aliens(current_x, current_y)
-                current_x += 2*alien_width
-            current_y += 2*alien_height
-            current_x = alien_width
+    def _spawn_alien(self):
+         if self.current_time - self.last_spawned >2000:
+              self.alien = Aliens(self, self.settings.alien1, 3,1)
+              self.aliens.add(self.alien)
+              self.last_spawned = self.current_time
 
-    def _create_aliens(self, xposition, yposition):
-        new_alien = Aliens(self)
-        self.x = xposition
-        new_alien.rect.x = xposition
-        new_alien.rect.y = yposition
-        self.aliens.add(new_alien)
+
+         
+
+
+
+
+    def _update_alien(self):
+         """updates the aliens positoin"""
+         self.aliens.update()
             
 
                  

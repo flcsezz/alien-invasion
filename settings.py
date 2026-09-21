@@ -7,7 +7,8 @@ class Settings():
         self.screen_height = 0
         self.screen_width = 0
         self.bg_colour = (15, 15, 26)
-        self.ship_speed = 4
+        self.swift_speed = 9
+        self.normal_speed = 4
 
         #Bullets
         self.bullet_height = 13
@@ -35,3 +36,9 @@ class Settings():
         self.starL = pygame.image.load('images/star_large.bmp')
         self.starM = pygame.image.load("images/star_medium.bmp")
         self.starS = pygame.image.load('images/star_small.bmp')
+
+        self.alien1 = pygame.image.load('images/alien.bmp')
+
+        #Alien settings
+        self.alien_speed = 3.0
+        
