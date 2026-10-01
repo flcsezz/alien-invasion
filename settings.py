@@ -9,6 +9,7 @@ class Settings():
         self.bg_colour = (15, 15, 26)
         self.swift_speed = 9
         self.normal_speed = 4
+        self.max_ships = 3
 
         #Bullets
         self.bullet_height = 13

@@ -1,10 +1,12 @@
 import sys
+from time import sleep
 from ship import Ship
 import pygame
 from settings import Settings
 from bullets import BulletR , BulletL, BulletM
 from aliens import Aliens
 from backgroun_assets import Background
+from game_stats import GameStats
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -18,6 +20,10 @@ class AlienInvasion:
         #self.settings.screen_width = self.screen.get_rect().width
         #self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien invasion UwU")
+      
+      #Stats
+        self.stats = GameStats(self)
+     
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
         self.ship = Ship(self)
@@ -46,6 +52,7 @@ class AlienInvasion:
         self.last_rendered = 0
         self.bg_objects = pygame.sprite.Group()
         self.destructive_obj = pygame.sprite.Group()
+
         
     def run_game(self):
         "Runs the game"
@@ -195,7 +202,7 @@ class AlienInvasion:
          collision = pygame.sprite.spritecollideany(self.ship, self.aliens)
          collisiona = pygame.sprite.spritecollideany(self.ship, self.destructive_obj)
          if collision or collisiona:
-              sys.exit()
+              self._ship_hit()
          
 
     def _render_bg_objects(self):
@@ -218,6 +225,18 @@ class AlienInvasion:
               self.alien = Aliens(self, self.settings.alien1, 3,1)
               self.aliens.add(self.alien)
               self.last_spawned = self.current_time
+
+    def _ship_hit(self):
+
+         self.settings.max_ships -=1
+         self.bullets.empty()
+         self.aliens.empty()
+         self.destructive_obj.empty()
+         self.bg_objects.empty()
+
+         self.ship.center_ship()
+
+         sleep(0.5)
 
 
          
