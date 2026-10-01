@@ -13,9 +13,10 @@ class AlienInvasion:
         """initialize game and , and create game resources"""
         pygame.init()
         self.settings = Settings()
-        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-        self.settings.screen_width = self.screen.get_rect().width
-        self.settings.screen_height = self.screen.get_rect().height
+        self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+        #self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+        #self.settings.screen_width = self.screen.get_rect().width
+        #self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien invasion UwU")
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
@@ -44,6 +45,7 @@ class AlienInvasion:
         #bg objects
         self.last_rendered = 0
         self.bg_objects = pygame.sprite.Group()
+        self.destructive_obj = pygame.sprite.Group()
         
     def run_game(self):
         "Runs the game"
@@ -58,6 +60,8 @@ class AlienInvasion:
             self.aliens.update()
             self._update_alien()
             self._remove_bullets()
+            self._check_bullet_alien_asteroid_collision()
+            self._check_alien_ship_collision()
             self._render_bg_objects()
             self._remove_obj()
             self._update_screen()
@@ -181,18 +185,32 @@ class AlienInvasion:
          for bullets in self.bullets.copy():
             if bullets.rect.bottom <=0:
                  self.bullets.remove(bullets)
+            
+
+    def _check_bullet_alien_asteroid_collision(self):
+         collision = pygame.sprite.groupcollide(self.bullets , self.aliens, True, True)
+         collisiona = pygame.sprite.groupcollide(self.bullets, self.destructive_obj, True, True)
+
+    def _check_alien_ship_collision(self):
+         collision = pygame.sprite.spritecollideany(self.ship, self.aliens)
+         collisiona = pygame.sprite.spritecollideany(self.ship, self.destructive_obj)
+         if collision or collisiona:
+              sys.exit()
+         
 
     def _render_bg_objects(self):
          self.current_time = pygame.time.get_ticks()
          if self.current_time - self.last_rendered >= 1000:
               self.asteroids = Background(self, self.settings.asteroid_img, 3)
               self.bg_objects.add(self.asteroids)
+              self.destructive_obj.add(self.asteroids)
               self.last_rendered = self.current_time
 
     def _remove_obj(self):
          for asteroids in self.bg_objects.copy():
               if asteroids.rect.top > self.settings.screen_height:
                    self.bg_objects.remove(asteroids)
+                   self.destructive_obj.remove(asteroids)
 
 
     def _spawn_alien(self):
@@ -212,11 +230,6 @@ class AlienInvasion:
          self.aliens.update()
             
 
-                 
-
-            
-         
-         
 
 if __name__ == "__main__":
     ai = AlienInvasion()

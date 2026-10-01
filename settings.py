@@ -4,8 +4,8 @@ class Settings():
     def __init__(self):
 
         """A class for all the settings in alien invasion"""
-        self.screen_height = 0
-        self.screen_width = 0
+        self.screen_height = 900
+        self.screen_width = 1400
         self.bg_colour = (15, 15, 26)
         self.swift_speed = 9
         self.normal_speed = 4

@@ -19,8 +19,8 @@ class Ship:
         self.move_left = False
         self.move_up = False
         self.move_down = False
-        self.swifty = False
         self.ship_speed = 0
+        self.swifty = False
         
 
         self.settings = ai_game.settings
