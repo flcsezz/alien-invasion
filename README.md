@@ -1,74 +1,104 @@
-# Alien Invasion (Enhanced Edition)
+# Alien Invasion (Enhanced Edition) — v1.0
 
-A 2D arcade space shooter built with Python and Pygame. While initially following the *Python Crash Course (3rd Edition)*, this version introduces advanced custom mechanics, including 4-directional ship movement, multiple switchable weapon modes, distinct projectile types, fire-rate balancing, and an active weapon overheating/cooling system.
+A feature-rich 2D arcade space shooter built with Python and Pygame. Starting from the foundation of the classic *Python Crash Course* project, this version expands the game with 4-directional ship movement, speed boosting, multi-mode weapon mechanics, weapon overheating/cooling, dynamic environmental hazards, persistent JSON-based high scores, and a data-driven 5-stage progression system with center-screen announcements.
 
 ---
 
-## Features
+## Key Features
 
-### 1. Full 4-Directional Movement
-- Unlike the classic left/right-only movement, the ship can navigate freely in all four directions (**Up**, **Down**, **Left**, **Right**) with boundary clamping to keep the ship within the screen.
-- Dual control support: navigate seamlessly using either **WASD** or the **Arrow Keys**.
+### 1. Dynamic 4-Directional Movement & Swift Boost
+- Full 4-way navigation (**Up**, **Down**, **Left**, **Right**) with screen boundary clamping.
+- Dual control schemes: Navigate with **WASD** or **Arrow Keys**.
+- **Swift Mode**: Hold `Left Shift` to engage afterburners and navigate at high speed (`swift_speed`).
 
-### 2. Multi-Mode Weapon System
-Switch between three distinct combat modes on the fly using number keys:
-- **Mode 1 - Single Cannon (`Key 1`)**: Fires a single projectile from the center of the ship (`BulletM`). Low heat generation and balanced fire delay.
-- **Mode 2 - Dual Cannon (`Key 2`)**: Fires twin projectiles simultaneously from the left and right wings (`BulletL` and `BulletR`).
-- **Mode 3 - Tri-Cannon (`Key 3`)**: Fires three bullets at once across the left, center, and right cannons. Maximum firepower at the cost of higher heat and cooldown.
+### 2. Multi-Mode Weaponry & Thermal Management
+Switch combat modes dynamically during battle:
+- **Mode 1 — Single Cannon (`1`)**: Fires a single centered shot (`BulletM`). Balanced cooldown and lowest heat generation.
+- **Mode 2 — Dual Wing Cannons (`2`)**: Twin synchronized shots (`BulletL` and `BulletR`) from ship wings.
+- **Mode 3 — Tri-Cannon Spread (`3`)**: Maximum firepower firing all three cannons simultaneously.
+- **Overheat System**: Continuous firing builds up thermal heat (`bullet_heat`). Exceeding `bullet_maxheat` triggers an emergency weapon lockout until the cooling system vents heat back down to zero.
 
-### 3. Overheat & Thermal Management
-- Firing weapons continuously generates **heat** (`bullet_heat`).
-- If heat reaches the critical threshold (`bullet_maxheat = 400`), the weapons **overheat** and will lock out firing.
-- Letting go of the trigger or waiting through an overheat engages the active cooling system (`bullet_coolingrate = 2.3`), venting heat back to zero before weapons can fire again.
+### 3. Environmental Hazards & Enemies
+- **Alien Assault**: Aliens spawn with randomized horizontal trajectories, descending with increasing aggression.
+- **Asteroid Hazards**: Destructive space debris fly through the sector at varying speeds and frequencies. Asteroids destroy player ships on contact but can be blasted apart by cannons.
 
-### 4. Continuous Fire & Cooldown Delays
-- Hold **Spacebar** to sustain continuous fire.
-- Each firing mode has an independent cooldown delay between bursts to balance rapid fire vs. high-spread firepower:
-  - **Single Mode**: 450 ms delay | +10 Heat/burst
-  - **Dual Cannon Mode**: 600 ms delay | +25 Heat/burst
-  - **Tri-Cannon Mode**: 800 ms delay | +40 Heat/burst
+### 4. Data-Driven 5-Stage Progression
+Progression scales seamlessly through a clean data-driven configuration without bloated conditional checks:
 
-### 5. Memory & Sprite Management
-- Bullets that travel past the top of the screen are automatically culled from sprite groups to maintain high performance.
+| Stage | Name | Score Target | Alien Speed | Spawn Delay | Hazard Density | Points/Kill |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| **1** | **Scout Patrol** | 120 | 2.5 | 1100 ms | Light Asteroids | 20 pts |
+| **2** | **Asteroid Sector** | 300 | 3.2 | 900 ms | Heavy Asteroid Belt | 35 pts |
+| **3** | **Vanguard Assault**| 600 | 4.0 | 700 ms | Fast Reinforcements | 50 pts |
+| **4** | **Deep Space Swarm** | 1000 | 5.0 | 500 ms | Swarm Influx | 75 pts |
+| **5** | **Final Invasion** | Endless | 6.2 | 380 ms | Relentless Climax | 100 pts |
+
+### 5. UI, Stage Banners & Scoreboard
+- **Live HUD**: Displays current score, active stage indicator, and persistent high score.
+- **Stage Banners**: Prominent center-screen golden banner announces stage transitions for 2 seconds.
+- **Interactive UI**: Custom `Buttons` class powers the start and game-over restart loop.
+
+### 6. Persistent High Score Tracking
+- High scores are saved to and loaded from `highscore.json` using Python's `json` and `pathlib` modules.
+- Tracks and preserves player personal bests across sessions.
 
 ---
 
 ## Controls
 
-| Action | Controls |
+| Action | Keybinding |
 |---|---|
 | **Move Up / Down / Left / Right** | `W` `A` `S` `D` or `↑` `↓` `←` `→` |
-| **Fire Bullets** | `Spacebar` (Hold for continuous fire) |
+| **Swift Boost** | Hold `Left Shift` |
+| **Fire Weapons** | `Spacebar` (Hold for continuous auto-fire) |
 | **Single Cannon Mode** | `1` |
 | **Dual Cannon Mode** | `2` |
 | **Tri-Cannon Mode** | `3` |
-| **Quit Game** | `Q` or Close Window |
+| **Start / Restart Game** | Click **Play** Button |
+| **Quit Game** | `Q` or Window Close |
 
-> **Note on Keyboard Ghosting:** When using arrow keys + spacebar on some standard/membrane keyboards, the hardware matrix may block simultaneous 3-key presses (e.g. moving diagonally while firing). For optimal responsiveness across all directions and shooting, **WASD + Spacebar** is recommended.
+> **Hardware Tip:** Some membrane keyboards experience matrix ghosting when pressing multiple arrow keys plus the spacebar. For the most responsive multi-key control (e.g. moving diagonally while firing), **WASD + Spacebar** is recommended.
 
 ---
 
 ## Project Structure
 
-- **[alien_invasion.py](alien_invasion.py)** - Main game loop, event handling, firing logic, heat management, and screen rendering.
-- **[ship.py](ship.py)** - Player ship class handling 4-way positional movement, boundary checks, and blitting.
-- **[bullets.py](bullets.py)** - Dedicated bullet classes (`BulletM`, `BulletL`, `BulletR`) managing individual cannon offsets and trajectory.
-- **[settings.py](settings.py)** - Global configurations for screen dimensions, ship speeds, weapon heat rates, and mode delays.
+```text
+alienInvasion/
+├── alien_invasion.py     # Main loop, event routing, collisions, and stage management
+├── settings.py           # Game parameters, weapon specs, assets, and stage definitions
+├── game_stats.py         # Player lives, score, and JSON high score persistence
+├── scoreboard.py         # HUD rendering (score, highscore, current stage, banners)
+├── ship.py               # Player ship movement, boundary constraints, and blit logic
+├── aliens.py             # Alien sprite behaviors and vertical update mechanics
+├── bullets.py            # Projectile classes (BulletM, BulletL, BulletR)
+├── backgroun_assets.py   # Falling celestial background and destructive asteroid sprites
+├── button.py             # Custom interactive UI button implementation
+├── highscore.json        # Persistent JSON high score storage
+└── images/               # BMP game art assets (ship, aliens, planets, stars, asteroids)
+```
 
 ---
 
-## Getting Started
+## Installation & Setup
 
 ### Prerequisites
-- Python 3.8+
-- Pygame
+- Python 3.8+ (Supports up through Python 3.14)
+- Pygame or Pygame-ce
+
+### Installation
+Clone the repository and install Pygame:
 
 ```bash
+# Recommended for modern Python versions:
+pip install pygame-ce
+
+# Or standard pygame:
 pip install pygame
 ```
 
 ### Running the Game
-Run the main game script from the project root:
+Launch the game directly from the project directory:
 
 ```bash
 python alien_invasion.py
