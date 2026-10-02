@@ -8,6 +8,8 @@ from aliens import Aliens
 from backgroun_assets import Background
 from game_stats import GameStats
 from button import Buttons
+from scoreboard import Scoreboard
+
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -58,6 +60,15 @@ class AlienInvasion:
         #buttons
         self.play_button = Buttons(self, "Play")
 
+        #scoreboard
+        self.scoreboard = Scoreboard(self)
+        self.settings.apply_stage(0)
+        self.stage = self.settings.stages[0]["name"]
+        self.stage_banner = self.stage
+        self.stage_banner_timer = 0
+
+
+
         
     def run_game(self):
         "Runs the game"
@@ -76,6 +87,7 @@ class AlienInvasion:
                     self._check_bullet_alien_asteroid_collision()
                     self._check_alien_ship_collision()
                     self._check_alien_bottom()
+                    self._game_progression()
                     self._render_bg_objects()
                     self._remove_obj()
             self._update_screen()
@@ -85,6 +97,7 @@ class AlienInvasion:
                 """respond to keypresses and mouse events"""
                 for events in pygame.event.get():
                     if events.type == pygame.QUIT or events.type == pygame.KEYDOWN and events.key == pygame.K_q:
+                        self.stats.save_highscore()
                         sys.exit()
                     elif events.type == pygame.KEYDOWN:
                         self._check_keydown_events(events)
@@ -97,13 +110,19 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
          if self.play_button.rect.collidepoint(mouse_pos) and not self.game_active:
               self.stats.stat_reset()
+              self.settings.apply_stage(0)
+              self.stage = self.settings.stages[0]["name"]
+              self.stage_banner = self.stage
+              self.stage_banner_timer = pygame.time.get_ticks() + 2000
               self.bg_objects.empty()
               self.destructive_obj.empty()
               self.bullets.empty()
               self.ship.center_ship()
               self.aliens.empty()
               self.game_active = True
+              self.stats.save_highscore()
               pygame.mouse.set_visible(False)
+              self.scoreboard.prep_score()
          
 
                                               
@@ -170,6 +189,12 @@ class AlienInvasion:
         if not self.game_active:
              self.play_button.draw()
 
+        self.scoreboard.show_score()
+        self.scoreboard.show_stage(self.stage)
+        self.scoreboard.show_highscore()
+        if self.game_active and pygame.time.get_ticks() < self.stage_banner_timer:
+            self.scoreboard.show_banner(self.stage_banner)
+
         #Makes the most recently drawn screen visible
         pygame.display.flip()
 
@@ -222,6 +247,14 @@ class AlienInvasion:
     def _check_bullet_alien_asteroid_collision(self):
          collision = pygame.sprite.groupcollide(self.bullets , self.aliens, True, True)
          collisiona = pygame.sprite.groupcollide(self.bullets, self.destructive_obj, True, True)
+         
+         if collision:
+              for alien_hit in collision.values():
+                   self.stats.score += self.settings.alien_points * len(alien_hit)
+                   self.scoreboard.prep_score()
+                   self.stats.live_hscore()
+                   
+
 
     def _check_alien_ship_collision(self):
          collision = pygame.sprite.spritecollideany(self.ship, self.aliens)
@@ -232,8 +265,8 @@ class AlienInvasion:
 
     def _render_bg_objects(self):
          self.current_time = pygame.time.get_ticks()
-         if self.current_time - self.last_rendered >= 1000:
-              self.asteroids = Background(self, self.settings.asteroid_img, 3)
+         if self.current_time - self.last_rendered >= self.settings.spawn_delay_bgobject:
+              self.asteroids = Background(self, self.settings.asteroid_img, self.settings.obj_speed)
               self.bg_objects.add(self.asteroids)
               self.destructive_obj.add(self.asteroids)
               self.last_rendered = self.current_time
@@ -246,8 +279,8 @@ class AlienInvasion:
 
 
     def _spawn_alien(self):
-         if self.current_time - self.last_spawned >2000:
-              self.alien = Aliens(self, self.settings.alien1, 3,1)
+         if self.current_time - self.last_spawned > self.settings.spawn_delay_alien:
+              self.alien = Aliens(self, self.settings.alien1, 3, self.settings.alien_speed)
               self.aliens.add(self.alien)
               self.last_spawned = self.current_time
 
@@ -265,7 +298,9 @@ class AlienInvasion:
                sleep(0.5)
          else:
               self.game_active = False
+              self.stats.save_highscore()
               pygame.mouse.set_visible(True)
+              
               
 
     def _check_alien_bottom(self):
@@ -279,6 +314,22 @@ class AlienInvasion:
     def _update_alien(self):
          """updates the aliens positoin"""
          self.aliens.update()
+
+    def _game_progression(self):
+         """Check if score reached target to advance to the next stage"""
+         current_idx = self.stats.current_stage_idx
+         if current_idx < len(self.settings.stages) - 1:
+              stage_data = self.settings.stages[current_idx]
+              target = stage_data.get("score_target")
+              if target is not None and self.stats.score >= target:
+                   self.stats.current_stage_idx += 1
+                   self.settings.apply_stage(self.stats.current_stage_idx)
+                   new_stage = self.settings.stages[self.stats.current_stage_idx]
+                   self.stage = new_stage["name"]
+                   self.stage_banner = new_stage["name"]
+                   self.stage_banner_timer = pygame.time.get_ticks() + 2000
+              
+              
             
 
 
