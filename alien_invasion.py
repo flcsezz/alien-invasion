@@ -7,6 +7,7 @@ from bullets import BulletR , BulletL, BulletM
 from aliens import Aliens
 from backgroun_assets import Background
 from game_stats import GameStats
+from button import Buttons
 
 class AlienInvasion:
     """Overall class to manage games assets and behaviour"""
@@ -23,6 +24,7 @@ class AlienInvasion:
       
       #Stats
         self.stats = GameStats(self)
+        self.game_active = False
      
         self.clock = pygame.time.Clock()
         self.bg_color = self.settings.bg_colour
@@ -53,24 +55,29 @@ class AlienInvasion:
         self.bg_objects = pygame.sprite.Group()
         self.destructive_obj = pygame.sprite.Group()
 
+        #buttons
+        self.play_button = Buttons(self, "Play")
+
         
     def run_game(self):
         "Runs the game"
         while True:
             self._check_events()
-            self.ship.update()           
-            self._bullet_heat()
-            self._fire_bullet()
-            self.bg_objects.update()
-            self._spawn_alien()
-            self.bullets.update()
-            self.aliens.update()
-            self._update_alien()
-            self._remove_bullets()
-            self._check_bullet_alien_asteroid_collision()
-            self._check_alien_ship_collision()
-            self._render_bg_objects()
-            self._remove_obj()
+            if self.game_active:
+                    self.ship.update()           
+                    self._bullet_heat()
+                    self._fire_bullet()
+                    self.bg_objects.update()
+                    self._spawn_alien()
+                    self.bullets.update()
+                    self.aliens.update()
+                    self._update_alien()
+                    self._remove_bullets()
+                    self._check_bullet_alien_asteroid_collision()
+                    self._check_alien_ship_collision()
+                    self._check_alien_bottom()
+                    self._render_bg_objects()
+                    self._remove_obj()
             self._update_screen()
             self.clock.tick(60)
             
@@ -83,6 +90,21 @@ class AlienInvasion:
                         self._check_keydown_events(events)
                     elif events.type ==  pygame.KEYUP:
                          self._check_keyup_events(events)
+                    elif events.type == pygame.MOUSEBUTTONDOWN:
+                         mouse_pos = pygame.mouse.get_pos()
+                         self._check_play_button(mouse_pos)
+
+    def _check_play_button(self, mouse_pos):
+         if self.play_button.rect.collidepoint(mouse_pos) and not self.game_active:
+              self.stats.stat_reset()
+              self.bg_objects.empty()
+              self.destructive_obj.empty()
+              self.bullets.empty()
+              self.ship.center_ship()
+              self.aliens.empty()
+              self.game_active = True
+              pygame.mouse.set_visible(False)
+         
 
                                               
 
@@ -144,6 +166,9 @@ class AlienInvasion:
 
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+
+        if not self.game_active:
+             self.play_button.draw()
 
         #Makes the most recently drawn screen visible
         pygame.display.flip()
@@ -228,22 +253,29 @@ class AlienInvasion:
 
     def _ship_hit(self):
 
-         self.settings.max_ships -=1
-         self.bullets.empty()
-         self.aliens.empty()
-         self.destructive_obj.empty()
-         self.bg_objects.empty()
+         if self.settings.max_ships > 0:
+               self.settings.max_ships -=1
+               self.bullets.empty()
+               self.aliens.empty()
+               self.destructive_obj.empty()
+               self.bg_objects.empty()
 
-         self.ship.center_ship()
+               self.ship.center_ship()
 
-         sleep(0.5)
+               sleep(0.5)
+         else:
+              self.game_active = False
+              pygame.mouse.set_visible(True)
+              
+
+    def _check_alien_bottom(self):
+         for alien in self.aliens.copy():
+              if alien.rect.bottom > self.settings.screen_height:
+                   self._ship_hit()
+                   break
 
 
-         
-
-
-
-
+     
     def _update_alien(self):
          """updates the aliens positoin"""
          self.aliens.update()

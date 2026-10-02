@@ -15,7 +15,7 @@ class Aliens(Sprite):
         self.health = health
         self.speed = speed if speed is not None else self.settings.alien_speed
 
-        self.rect.x = randint(0, (self.settings.screen_width - 10 ))
+        self.rect.x = randint(0, (self.settings.screen_width - 30 ))
         self.rect.y = randint(-60,0)
 
         self.y = float(self.rect.y)
