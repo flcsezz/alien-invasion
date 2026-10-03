@@ -28,7 +28,6 @@ class GameStats():
         return 0
 
     def save_highscore(self):
-        if self.score > self.highscore:
             contents = json.dumps(self.score)
             self.path.write_text(contents)
             self.highscore = self.score

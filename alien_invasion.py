@@ -120,7 +120,6 @@ class AlienInvasion:
               self.ship.center_ship()
               self.aliens.empty()
               self.game_active = True
-              self.stats.save_highscore()
               pygame.mouse.set_visible(False)
               self.scoreboard.prep_score()
          
